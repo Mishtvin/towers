@@ -130,8 +130,12 @@ export const blockAction = (instance, engine, time) => {
           const firstCenter = engine.getVariable(constant.firstBlockCenter)
             || (engine.width / 2)
           const maxOffset = engine.width * 0.2
-          if (target > firstCenter + maxOffset) target = firstCenter + maxOffset
-          if (target < firstCenter - maxOffset) target = firstCenter - maxOffset
+          const offset = target - firstCenter
+          if (Math.abs(offset) > maxOffset) {
+            console.log('Offset', offset.toFixed(2), 'exceeds limit, dropping opposite')
+            target = firstCenter - Math.sign(offset) * maxOffset
+          }
+          console.log('Drop target set to', target.toFixed(2))
           i.weightX = target
           engine.setTimeMovement(constant.hookUpMovement, 500)
           i.status = constant.beforeDrop
@@ -195,9 +199,13 @@ export const blockAction = (instance, engine, time) => {
           const firstCenterDrop = engine.getVariable(constant.firstBlockCenter)
           const maxCenterOffset = engine.width * 0.2
           let finalCenter = i.weightX
-          if (finalCenter > firstCenterDrop + maxCenterOffset) finalCenter = firstCenterDrop + maxCenterOffset
-          if (finalCenter < firstCenterDrop - maxCenterOffset) finalCenter = firstCenterDrop - maxCenterOffset
+          const diffFromCenter = finalCenter - firstCenterDrop
+          if (Math.abs(diffFromCenter) > maxCenterOffset) {
+            console.log('Final center diff', diffFromCenter.toFixed(2), 'exceeds limit, adjusting opposite')
+            finalCenter = firstCenterDrop - Math.sign(diffFromCenter) * maxCenterOffset
+          }
           i.weightX = finalCenter
+          console.log('Final center set to', finalCenter.toFixed(2))
           i.x = finalCenter - i.calWidth
           line.y = blockY
           line.x = i.x - i.calWidth
