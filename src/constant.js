@@ -24,6 +24,7 @@ export const ropeHeight = 'ROPE_HEIGHT'
 export const flightCount = 'FLIGHT_COUNT'
 export const flightLayer = 'FLIGHT_LAYER'
 export const firstBlockCenter = 'FIRST_BLOCK_CENTER'
+export const lastBlockCenter = 'LAST_BLOCK_CENTER'
 
 export const rotateRight = 'ROTATE_RIGHT'
 export const rotateLeft = 'ROTATE_LEFT'
