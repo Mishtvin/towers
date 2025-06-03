@@ -101,37 +101,40 @@ export const getHookStatus = (engine) => {
 }
 
 export const touchEventHandler = (engine) => {
+  console.log('touchEventHandler invoked')
   if (!engine.getVariable(constant.gameStartNow)) return
   if (engine.debug && engine.paused) {
+    console.log('Game paused, ignoring touch')
     return
   }
-  if (getHookStatus(engine) !== constant.hookNormal) {
+  const hookStatus = getHookStatus(engine)
+  if (hookStatus !== constant.hookNormal) {
+    console.log('Hook not ready, status:', hookStatus)
     return
   }
   engine.removeInstance('tutorial')
   engine.removeInstance('tutorial-arrow')
   const b = engine.getInstance(`block_${engine.getVariable(constant.blockCount)}`)
   if (b && b.status === constant.swing) {
+    console.log('Swing block touched, entering waitDrop state')
     // start waiting state instead of dropping immediately
     b.status = constant.waitDrop
     b.waitStart = Date.now()
     b.waitDuration = engine.utils.random(800, 1500)
+    console.log('waitDuration set to', b.waitDuration)
     const { buildRequest } = engine.getVariable(constant.gameUserOption)
     if (buildRequest) {
+      console.log('Calling buildRequest')
       Promise.resolve(buildRequest()).then((res) => {
-
         console.log('Build request result:', res)
         b.serverResult = res && res.success
       }).catch((err) => {
         console.log('Build request error:', err)
-
         b.serverResult = false
       })
     } else {
       // default success if no request provided
-
       console.log('Build request default success')
-
       b.serverResult = true
     }
   }
