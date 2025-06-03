@@ -98,6 +98,8 @@ function(currentFloor, currentScore) {
 #### buildRequest
 Hook for asynchronous build result. Should return a Promise resolving to
 an object `{ success: boolean }` used to decide final block position.
+The response is applied once the swinging block next passes over the
+center of the tower, ensuring a natural drop.
 ```
 function() {
   return Promise.resolve({ success: true })

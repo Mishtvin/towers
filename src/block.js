@@ -88,19 +88,25 @@ export const blockAction = (instance, engine, time) => {
       break
     case constant.waitDrop:
       swing(instance, engine, time)
-      if (Date.now() - i.waitStart >= i.waitDuration && typeof i.serverResult !== 'undefined') {
+      if (!i.pendingDrop && typeof i.serverResult !== 'undefined'
+        && (Date.now() - i.waitStart) >= i.waitDuration) {
+        i.pendingDrop = true
+      }
+      if (i.pendingDrop) {
         const center = line.x + i.calWidth
-        if (i.serverResult) {
-          i.weightX = center
-        } else {
-          i.weightX = center + (i.width * 0.8 * engine.utils.randomPositiveNegative())
+        const aligned = Math.abs(i.weightX - center) < 2 && Math.abs(i.angle) < 0.1
+        if (aligned) {
+          let target = i.serverResult ? center
+            : center + (i.width * 0.8 * engine.utils.randomPositiveNegative())
+          const firstCenter = engine.getVariable(constant.firstBlockCenter)
+            || (engine.width / 2)
+          const maxOffset = engine.width * 0.2
+          if (target > firstCenter + maxOffset) target = firstCenter + maxOffset
+          if (target < firstCenter - maxOffset) target = firstCenter - maxOffset
+          i.weightX = target
+          engine.setTimeMovement(constant.hookUpMovement, 500)
+          i.status = constant.beforeDrop
         }
-        const firstCenter = engine.getVariable(constant.firstBlockCenter) || (engine.width / 2)
-        const maxOffset = engine.width * 0.2
-        if (i.weightX > firstCenter + maxOffset) i.weightX = firstCenter + maxOffset
-        if (i.weightX < firstCenter - maxOffset) i.weightX = firstCenter - maxOffset
-        engine.setTimeMovement(constant.hookUpMovement, 500)
-        i.status = constant.beforeDrop
       }
       break
     case constant.beforeDrop:
