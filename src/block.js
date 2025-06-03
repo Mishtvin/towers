@@ -86,6 +86,19 @@ export const blockAction = (instance, engine, time) => {
       )
       swing(instance, engine, time)
       break
+    case constant.waitDrop:
+      swing(instance, engine, time)
+      if (Date.now() - i.waitStart >= i.waitDuration && typeof i.serverResult !== 'undefined') {
+        const center = line.x + i.calWidth
+        if (i.serverResult) {
+          i.weightX = center
+        } else {
+          i.weightX = center + (i.width * 0.8 * engine.utils.randomPositiveNegative())
+        }
+        engine.setTimeMovement(constant.hookUpMovement, 500)
+        i.status = constant.beforeDrop
+      }
+      break
     case constant.beforeDrop:
       i.x = instance.weightX - instance.calWidth
       i.y = instance.weightY + (0.3 * instance.height) // add rope height
@@ -234,6 +247,7 @@ export const blockPainter = (instance, engine) => {
   const { status } = instance
   switch (status) {
     case constant.swing:
+    case constant.waitDrop:
       drawSwingBlock(instance, engine)
       break
     case constant.drop:

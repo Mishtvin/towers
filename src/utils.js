@@ -112,8 +112,21 @@ export const touchEventHandler = (engine) => {
   engine.removeInstance('tutorial-arrow')
   const b = engine.getInstance(`block_${engine.getVariable(constant.blockCount)}`)
   if (b && b.status === constant.swing) {
-    engine.setTimeMovement(constant.hookUpMovement, 500)
-    b.status = constant.beforeDrop
+    // start waiting state instead of dropping immediately
+    b.status = constant.waitDrop
+    b.waitStart = Date.now()
+    b.waitDuration = engine.utils.random(800, 1500)
+    const { buildRequest } = engine.getVariable(constant.gameUserOption)
+    if (buildRequest) {
+      Promise.resolve(buildRequest()).then((res) => {
+        b.serverResult = res && res.success
+      }).catch(() => {
+        b.serverResult = false
+      })
+    } else {
+      // default success if no request provided
+      b.serverResult = true
+    }
   }
 }
 
