@@ -31,7 +31,7 @@ const checkCollision = (block, line) => {
 }
 const swing = (instance, engine, time) => {
   const ropeHeight = engine.getVariable(constant.ropeHeight)
-  if (instance.status !== constant.swing) return
+  if (instance.status !== constant.swing && instance.status !== constant.waitDrop) return
   const i = instance
   const initialAngle = engine.getVariable(constant.initialAngle)
   i.angle = initialAngle *
