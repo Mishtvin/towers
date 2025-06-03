@@ -82,10 +82,17 @@ export const startAnimate = (engine) => {
     if (checkMoveDown(engine) && getMoveDownValue(engine)) return
     if (engine.checkTimeMovement(constant.hookUpMovement)) return
     const angleBase = getAngleBase(engine)
-    const initialAngle = (Math.PI
-        * engine.utils.random(angleBase, angleBase + 5)
-        * engine.utils.randomPositiveNegative()
-    ) / 180
+    const successSoFar = engine.getVariable(constant.successCount, 0)
+    let initialAngle
+    if (successSoFar === 0) {
+      initialAngle = 0
+      console.log('Creating first block with no swing')
+    } else {
+      initialAngle = (Math.PI
+          * engine.utils.random(angleBase, angleBase + 5)
+          * engine.utils.randomPositiveNegative()
+      ) / 180
+    }
     engine.setVariable(constant.blockCount, engine.getVariable(constant.blockCount) + 1)
     engine.setVariable(constant.initialAngle, initialAngle)
     engine.setTimeMovement(constant.hookDownMovement, 500)
