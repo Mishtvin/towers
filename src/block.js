@@ -95,6 +95,10 @@ export const blockAction = (instance, engine, time) => {
         } else {
           i.weightX = center + (i.width * 0.8 * engine.utils.randomPositiveNegative())
         }
+        const firstCenter = engine.getVariable(constant.firstBlockCenter) || (engine.width / 2)
+        const maxOffset = engine.width * 0.2
+        if (i.weightX > firstCenter + maxOffset) i.weightX = firstCenter + maxOffset
+        if (i.weightX < firstCenter - maxOffset) i.weightX = firstCenter - maxOffset
         engine.setTimeMovement(constant.hookUpMovement, 500)
         i.status = constant.beforeDrop
       }
@@ -146,6 +150,16 @@ export const blockAction = (instance, engine, time) => {
             engine.setTimeMovement(constant.lightningMovement, 150)
           }
           instance.y = blockY
+          if (!engine.getVariable(constant.firstBlockCenter)) {
+            engine.setVariable(constant.firstBlockCenter, i.weightX)
+          }
+          const firstCenterDrop = engine.getVariable(constant.firstBlockCenter)
+          const maxCenterOffset = engine.width * 0.2
+          let finalCenter = i.weightX
+          if (finalCenter > firstCenterDrop + maxCenterOffset) finalCenter = firstCenterDrop + maxCenterOffset
+          if (finalCenter < firstCenterDrop - maxCenterOffset) finalCenter = firstCenterDrop - maxCenterOffset
+          i.weightX = finalCenter
+          i.x = finalCenter - i.calWidth
           line.y = blockY
           line.x = i.x - i.calWidth
           line.collisionX = line.x + i.width
