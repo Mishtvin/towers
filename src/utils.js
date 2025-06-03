@@ -137,6 +137,8 @@ export const touchEventHandler = (engine) => {
       console.log('Build request default success')
       b.serverResult = true
     }
+  } else {
+    console.log('No active swing block for touch event')
   }
 }
 
