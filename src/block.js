@@ -245,6 +245,7 @@ export const blockAction = (instance, engine, time) => {
           instance.y = blockY
           if (!engine.getVariable(constant.firstBlockCenter)) {
             engine.setVariable(constant.firstBlockCenter, i.weightX)
+            console.log('First block center set to', i.weightX.toFixed(2))
           }
           const firstCenterDrop = engine.getVariable(constant.firstBlockCenter)
           const maxCenterOffset = engine.width * 0.2
@@ -260,11 +261,17 @@ export const blockAction = (instance, engine, time) => {
           }
           i.weightX = finalCenter
           engine.setVariable(constant.lastBlockCenter, finalCenter)
-          console.log('Final center set to', finalCenter.toFixed(2))
+
+          console.log('Final center set to', finalCenter.toFixed(2), 'diff from first',
+            (finalCenter - firstCenterDrop).toFixed(2))
+
           i.x = finalCenter - i.calWidth
           line.y = blockY
           line.x = i.x - i.calWidth
           line.collisionX = line.x + i.width
+          i.pendingDrop = false
+          i.dropTarget = undefined
+          i.serverResult = undefined
           // 作弊检测 超出左边或右边1／3
           const cheatWidth = i.width * 0.3
           if (i.x > engine.width - (cheatWidth * 2)
@@ -279,6 +286,7 @@ export const blockAction = (instance, engine, time) => {
             addScore(engine)
             engine.playAudio('drop')
           }
+          console.log('Block landed at', finalCenter.toFixed(2))
           break
         default:
           break
