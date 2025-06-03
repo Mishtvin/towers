@@ -115,6 +115,9 @@ export const touchEventHandler = (engine) => {
   engine.removeInstance('tutorial')
   engine.removeInstance('tutorial-arrow')
   const b = engine.getInstance(`block_${engine.getVariable(constant.blockCount)}`)
+  if (b) {
+    console.log('Current block status:', b.status)
+  }
   if (b && b.status === constant.swing) {
     console.log('Swing block touched, entering waitDrop state')
     // start waiting state instead of dropping immediately
