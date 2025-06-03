@@ -72,7 +72,10 @@ export const blockAction = (instance, engine, time) => {
     instance.y = ropeHeight * -1.5
   }
   const line = engine.getInstance('line')
-  console.log('Current block status:', i.status)
+  if (i.lastLoggedStatus !== i.status) {
+    console.log('Block status changed:', i.lastLoggedStatus, '->', i.status)
+    i.lastLoggedStatus = i.status
+  }
   switch (i.status) {
     case constant.swing:
       engine.getTimeMovement(
@@ -112,8 +115,15 @@ export const blockAction = (instance, engine, time) => {
       }
       if (i.pendingDrop) {
         const center = line.x + i.calWidth
-        const aligned = Math.abs(i.weightX - center) < 2 && Math.abs(i.angle) < 0.1
-        if (aligned) {
+        const diff = Math.abs(i.weightX - center)
+        const angle = Math.abs(i.angle)
+        const aligned = diff < 2 && angle < 0.1
+        console.log('Checking alignment diff:', diff.toFixed(2), 'angle:', angle.toFixed(2), 'aligned:', aligned)
+        const alignTimeout = (Date.now() - i.waitStart) > (i.waitDuration + 5000)
+        if (alignTimeout && !aligned) {
+          console.log('Alignment timeout reached, forcing drop')
+        }
+        if (aligned || alignTimeout) {
           console.log('Block aligned, starting drop with result:', i.serverResult)
           let target = i.serverResult ? center
             : center + (i.width * 0.8 * engine.utils.randomPositiveNegative())
