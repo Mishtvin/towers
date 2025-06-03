@@ -72,6 +72,7 @@ export const blockAction = (instance, engine, time) => {
     instance.y = ropeHeight * -1.5
   }
   const line = engine.getInstance('line')
+  console.log('Current block status:', i.status)
   switch (i.status) {
     case constant.swing:
       engine.getTimeMovement(
@@ -100,17 +101,20 @@ export const blockAction = (instance, engine, time) => {
       swing(instance, engine, time)
       if (!i.pendingDrop && typeof i.serverResult !== 'undefined'
         && (Date.now() - i.waitStart) >= i.waitDuration) {
+        console.log('Server result received, preparing drop:', i.serverResult)
         i.pendingDrop = true
       }
       // safety timeout: drop after 3 seconds regardless of server result
       if (!i.pendingDrop && (Date.now() - i.waitStart) > 3000) {
         i.serverResult = false
+        console.log('Build request timed out, forcing drop')
         i.pendingDrop = true
       }
       if (i.pendingDrop) {
         const center = line.x + i.calWidth
         const aligned = Math.abs(i.weightX - center) < 2 && Math.abs(i.angle) < 0.1
         if (aligned) {
+          console.log('Block aligned, starting drop with result:', i.serverResult)
           let target = i.serverResult ? center
             : center + (i.width * 0.8 * engine.utils.randomPositiveNegative())
           const firstCenter = engine.getVariable(constant.firstBlockCenter)
@@ -130,6 +134,7 @@ export const blockAction = (instance, engine, time) => {
       i.rotate = 0
       i.ay = engine.pixelsPerFrame(0.0003 * engine.height) // acceleration of gravity
       i.startDropTime = time
+      console.log('Switching to drop state')
       i.status = constant.drop
       break
     case constant.drop:
@@ -138,6 +143,9 @@ export const blockAction = (instance, engine, time) => {
       i.vy += i.ay * deltaTime
       i.y += (i.vy * deltaTime) + (0.5 * i.ay * (deltaTime ** 2))
       const collision = checkCollision(instance, line)
+      if (collision) {
+        console.log('Collision detected type', collision)
+      }
       const blockY = line.y - instance.height
       const calRotate = (ins) => {
         ins.originOutwardAngle = Math.atan(ins.height / ins.outwardOffset)
