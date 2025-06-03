@@ -96,6 +96,7 @@ export const startAnimate = (engine) => {
     engine.setVariable(constant.blockCount, engine.getVariable(constant.blockCount) + 1)
     engine.setVariable(constant.initialAngle, initialAngle)
     engine.setTimeMovement(constant.hookDownMovement, 500)
+    console.log('Spawning block', engine.getVariable(constant.blockCount))
     const block = new Instance({
       name: `block_${engine.getVariable(constant.blockCount)}`,
       action: blockAction,

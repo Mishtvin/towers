@@ -124,18 +124,27 @@ export const blockAction = (instance, engine, time) => {
           console.log('Alignment timeout reached, forcing drop')
         }
         if (aligned || alignTimeout) {
-          console.log('Block aligned, starting drop with result:', i.serverResult)
-          let target = i.serverResult ? center
-            : center + (i.width * 0.8 * engine.utils.randomPositiveNegative())
+          console.log('Block aligned, calculating drop target')
           const firstCenter = engine.getVariable(constant.firstBlockCenter)
             || (engine.width / 2)
+          const lastCenter = engine.getVariable(constant.lastBlockCenter)
+            || firstCenter
+          const stepOffset = engine.width * 0.05
           const maxOffset = engine.width * 0.2
-          const offset = target - firstCenter
-          if (Math.abs(offset) > maxOffset) {
-            console.log('Offset', offset.toFixed(2), 'exceeds limit, dropping opposite')
-            target = firstCenter - Math.sign(offset) * maxOffset
+          let direction = engine.utils.randomPositiveNegative()
+          let target = lastCenter + stepOffset * direction
+          if (Math.abs(target - firstCenter) > maxOffset) {
+            direction *= -1
+            target = lastCenter + stepOffset * direction
+            if (Math.abs(target - firstCenter) > maxOffset) {
+              target = firstCenter + Math.sign(target - firstCenter) * maxOffset
+            }
           }
-          console.log('Drop target set to', target.toFixed(2))
+          console.log(
+            'Drop target', target.toFixed(2),
+            'lastCenter', lastCenter.toFixed(2),
+            'firstCenter', firstCenter.toFixed(2)
+          )
           i.weightX = target
           engine.setTimeMovement(constant.hookUpMovement, 500)
           i.status = constant.beforeDrop
@@ -205,6 +214,7 @@ export const blockAction = (instance, engine, time) => {
             finalCenter = firstCenterDrop - Math.sign(diffFromCenter) * maxCenterOffset
           }
           i.weightX = finalCenter
+          engine.setVariable(constant.lastBlockCenter, finalCenter)
           console.log('Final center set to', finalCenter.toFixed(2))
           i.x = finalCenter - i.calWidth
           line.y = blockY
