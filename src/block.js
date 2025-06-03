@@ -72,6 +72,10 @@ export const blockAction = (instance, engine, time) => {
     instance.y = ropeHeight * -1.5
   }
   const line = engine.getInstance('line')
+  if (i.lastLoggedStatus !== i.status) {
+    console.log('Block status changed:', i.lastLoggedStatus, '->', i.status)
+    i.lastLoggedStatus = i.status
+  }
   switch (i.status) {
     case constant.swing:
       engine.getTimeMovement(
@@ -100,36 +104,95 @@ export const blockAction = (instance, engine, time) => {
       swing(instance, engine, time)
       if (!i.pendingDrop && typeof i.serverResult !== 'undefined'
         && (Date.now() - i.waitStart) >= i.waitDuration) {
+        console.log('Server result received, preparing drop:', i.serverResult)
         i.pendingDrop = true
+        const firstCenter = engine.getVariable(constant.firstBlockCenter)
+          || (engine.width / 2)
+        const lastCenter = engine.getVariable(constant.lastBlockCenter)
+          || firstCenter
+        const successSoFar = engine.getVariable(constant.successCount, 0)
+        let target
+        if (successSoFar === 0) {
+          target = firstCenter
+        } else {
+          const stepOffset = engine.width * 0.05
+          const maxOffset = engine.width * 0.2
+          let direction = engine.utils.randomPositiveNegative()
+          target = lastCenter + stepOffset * direction
+          if (Math.abs(target - firstCenter) > maxOffset) {
+            console.log('Target exceeds 20%, reversing direction')
+            direction *= -1
+            target = lastCenter + stepOffset * direction
+            if (Math.abs(target - firstCenter) > maxOffset) {
+              console.log('Still beyond limit, clamping to max offset')
+              target = firstCenter + Math.sign(target - firstCenter) * maxOffset
+            }
+          }
+        }
+        i.dropTarget = target
+        console.log(
+          'Calculated drop target', target.toFixed(2),
+          'lastCenter', lastCenter.toFixed(2),
+          'firstCenter', firstCenter.toFixed(2)
+        )
       }
       // safety timeout: drop after 3 seconds regardless of server result
       if (!i.pendingDrop && (Date.now() - i.waitStart) > 3000) {
         i.serverResult = false
+        console.log('Build request timed out, forcing drop')
         i.pendingDrop = true
+        const firstCenter = engine.getVariable(constant.firstBlockCenter)
+          || (engine.width / 2)
+        const lastCenter = engine.getVariable(constant.lastBlockCenter)
+          || firstCenter
+        const successSoFar = engine.getVariable(constant.successCount, 0)
+        let target
+        if (successSoFar === 0) {
+          target = firstCenter
+        } else {
+          const stepOffset = engine.width * 0.05
+          const maxOffset = engine.width * 0.2
+          let direction = engine.utils.randomPositiveNegative()
+          target = lastCenter + stepOffset * direction
+          if (Math.abs(target - firstCenter) > maxOffset) {
+            console.log('Timeout target exceeds 20%, reversing direction')
+            direction *= -1
+            target = lastCenter + stepOffset * direction
+            if (Math.abs(target - firstCenter) > maxOffset) {
+              console.log('Timeout target still beyond limit, clamping')
+              target = firstCenter + Math.sign(target - firstCenter) * maxOffset
+            }
+          }
+        }
+        i.dropTarget = target
+        console.log('Calculated drop target due to timeout', target.toFixed(2))
       }
       if (i.pendingDrop) {
-        const center = line.x + i.calWidth
-        const aligned = Math.abs(i.weightX - center) < 2 && Math.abs(i.angle) < 0.1
-        if (aligned) {
-          let target = i.serverResult ? center
-            : center + (i.width * 0.8 * engine.utils.randomPositiveNegative())
-          const firstCenter = engine.getVariable(constant.firstBlockCenter)
-            || (engine.width / 2)
-          const maxOffset = engine.width * 0.2
-          if (target > firstCenter + maxOffset) target = firstCenter + maxOffset
-          if (target < firstCenter - maxOffset) target = firstCenter - maxOffset
-          i.weightX = target
-          engine.setTimeMovement(constant.hookUpMovement, 500)
+        const target = (typeof i.dropTarget !== 'undefined') ? i.dropTarget : line.x + i.calWidth
+        const diff = Math.abs(i.weightX - target)
+        const angle = Math.abs(i.angle)
+        const aligned = diff < 1 && angle < 0.1
+        console.log('Checking alignment diff:', diff.toFixed(2), 'angle:', angle.toFixed(2), 'aligned:', aligned)
+        const alignTimeout = (Date.now() - i.waitStart) > (i.waitDuration + 2000)
+        if (alignTimeout && !aligned) {
+          console.log('Alignment timeout reached, forcing drop')
+        }
+        if (aligned || alignTimeout) {
+          i.dropStartX = i.weightX
+          i.dropStartY = i.weightY
+          engine.setTimeMovement(constant.hookUpMovement, 300)
+          console.log('Alignment reached, starting drop')
           i.status = constant.beforeDrop
         }
       }
       break
     case constant.beforeDrop:
-      i.x = instance.weightX - instance.calWidth
-      i.y = instance.weightY + (0.3 * instance.height) // add rope height
+      i.x = i.dropStartX - instance.calWidth
+      i.y = i.dropStartY + (0.3 * instance.height) // add rope height
       i.rotate = 0
       i.ay = engine.pixelsPerFrame(0.0003 * engine.height) // acceleration of gravity
       i.startDropTime = time
+      console.log('Switching to drop state')
       i.status = constant.drop
       break
     case constant.drop:
@@ -138,6 +201,9 @@ export const blockAction = (instance, engine, time) => {
       i.vy += i.ay * deltaTime
       i.y += (i.vy * deltaTime) + (0.5 * i.ay * (deltaTime ** 2))
       const collision = checkCollision(instance, line)
+      if (collision) {
+        console.log('Collision detected type', collision)
+      }
       const blockY = line.y - instance.height
       const calRotate = (ins) => {
         ins.originOutwardAngle = Math.atan(ins.height / ins.outwardOffset)
@@ -173,17 +239,29 @@ export const blockAction = (instance, engine, time) => {
           instance.y = blockY
           if (!engine.getVariable(constant.firstBlockCenter)) {
             engine.setVariable(constant.firstBlockCenter, i.weightX)
+            console.log('First block center set to', i.weightX.toFixed(2))
           }
           const firstCenterDrop = engine.getVariable(constant.firstBlockCenter)
           const maxCenterOffset = engine.width * 0.2
-          let finalCenter = i.weightX
-          if (finalCenter > firstCenterDrop + maxCenterOffset) finalCenter = firstCenterDrop + maxCenterOffset
-          if (finalCenter < firstCenterDrop - maxCenterOffset) finalCenter = firstCenterDrop - maxCenterOffset
+          let finalCenter = typeof i.dropTarget !== 'undefined'
+            ? i.dropTarget
+            : i.weightX
+          const diffFromCenter = finalCenter - firstCenterDrop
+          if (Math.abs(diffFromCenter) > maxCenterOffset) {
+            console.log('Final center diff', diffFromCenter.toFixed(2), 'exceeds limit, adjusting opposite')
+            finalCenter = firstCenterDrop - Math.sign(diffFromCenter) * maxCenterOffset
+          }
           i.weightX = finalCenter
+          engine.setVariable(constant.lastBlockCenter, finalCenter)
+          console.log('Final center set to', finalCenter.toFixed(2), 'diff from first',
+            (finalCenter - firstCenterDrop).toFixed(2))
           i.x = finalCenter - i.calWidth
           line.y = blockY
           line.x = i.x - i.calWidth
           line.collisionX = line.x + i.width
+          i.pendingDrop = false
+          i.dropTarget = undefined
+          i.serverResult = undefined
           // 作弊检测 超出左边或右边1／3
           const cheatWidth = i.width * 0.3
           if (i.x > engine.width - (cheatWidth * 2)
@@ -198,6 +276,7 @@ export const blockAction = (instance, engine, time) => {
             addScore(engine)
             engine.playAudio('drop')
           }
+          console.log('Block landed at', finalCenter.toFixed(2))
           break
         default:
           break
