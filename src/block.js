@@ -87,9 +87,24 @@ export const blockAction = (instance, engine, time) => {
       swing(instance, engine, time)
       break
     case constant.waitDrop:
+      engine.getTimeMovement(
+        constant.hookDownMovement,
+        [[instance.y, instance.y + ropeHeight]],
+        (value) => {
+          instance.y = value
+        },
+        {
+          name: 'block'
+        }
+      )
       swing(instance, engine, time)
       if (!i.pendingDrop && typeof i.serverResult !== 'undefined'
         && (Date.now() - i.waitStart) >= i.waitDuration) {
+        i.pendingDrop = true
+      }
+      // safety timeout: drop after 3 seconds regardless of server result
+      if (!i.pendingDrop && (Date.now() - i.waitStart) > 3000) {
+        i.serverResult = false
         i.pendingDrop = true
       }
       if (i.pendingDrop) {
