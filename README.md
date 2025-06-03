@@ -63,6 +63,7 @@ Use following table of `option` constants to complete customization of game rule
 | <a href="#hookspeed">hookSpeed</a> | function | Speed of hook's movement |
 | <a href="#hookangle">hookAngle</a> | function | Angle of hook |
 | <a href="#landblockspeed">landBlockSpeed</a> | function | Speed of block sway |
+| buildRequest | function | Promise returning { success: boolean } |
 | <a href="#setgamescore">setGameScore</a> | function | hook for current score |
 | <a href="#setgamesuccess">setGameSuccess</a> | function | hook for number of current succesful game |
 | <a href="#setgamefailed">setGameFailed</a> | function | hook for number of current failed game |
@@ -91,6 +92,15 @@ This function takes in two parameters, currentFloor and currentScore, and return
 ```
 function(currentFloor, currentScore) {
   return number
+}
+```
+
+#### buildRequest
+Hook for asynchronous build result. Should return a Promise resolving to
+an object `{ success: boolean }` used to decide final block position.
+```
+function() {
+  return Promise.resolve({ success: true })
 }
 ```
 
