@@ -217,9 +217,7 @@ export const blockAction = (instance, engine, time) => {
         ins.originHypotenuse = Math.sqrt((ins.height ** 2)
           + (ins.outwardOffset ** 2))
         engine.playAudio('rotate')
-            console.log('First block center set to', i.weightX.toFixed(2))
-          console.log('Final center set to', finalCenter.toFixed(2), 'diff from first',
-            (finalCenter - firstCenterDrop).toFixed(2))
+      }
       switch (collision) {
         case 1:
           checkBlockOut(instance, engine)
