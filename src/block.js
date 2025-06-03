@@ -102,6 +102,9 @@ export const blockAction = (instance, engine, time) => {
         }
       )
       swing(instance, engine, time)
+      console.log('WAIT_DROP tick', 'pending:', i.pendingDrop,
+        'serverResult:', i.serverResult,
+        'elapsed:', Date.now() - i.waitStart)
       if (!i.pendingDrop && typeof i.serverResult !== 'undefined'
         && (Date.now() - i.waitStart) >= i.waitDuration) {
         console.log('Server result received, preparing drop:', i.serverResult)
@@ -271,7 +274,7 @@ export const blockAction = (instance, engine, time) => {
           line.collisionX = line.x + i.width
           i.pendingDrop = false
           i.dropTarget = undefined
-          i.serverResult = undefined
+      );
           // 作弊检测 超出左边或右边1／3
           const cheatWidth = i.width * 0.3
           if (i.x > engine.width - (cheatWidth * 2)
