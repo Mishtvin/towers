@@ -123,7 +123,9 @@ export const touchEventHandler = (engine) => {
     // start waiting state instead of dropping immediately
     b.status = constant.waitDrop
     b.waitStart = Date.now()
+
     b.waitDuration = engine.utils.random(300, 600)
+
     console.log('waitDuration set to', b.waitDuration)
     const { buildRequest } = engine.getVariable(constant.gameUserOption)
     if (buildRequest) {
