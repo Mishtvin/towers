@@ -120,9 +120,11 @@ export const blockAction = (instance, engine, time) => {
           let direction = engine.utils.randomPositiveNegative()
           target = lastCenter + stepOffset * direction
           if (Math.abs(target - firstCenter) > maxOffset) {
+            console.log('Target exceeds 20%, reversing direction')
             direction *= -1
             target = lastCenter + stepOffset * direction
             if (Math.abs(target - firstCenter) > maxOffset) {
+              console.log('Still beyond limit, clamping to max offset')
               target = firstCenter + Math.sign(target - firstCenter) * maxOffset
             }
           }
@@ -153,9 +155,11 @@ export const blockAction = (instance, engine, time) => {
           let direction = engine.utils.randomPositiveNegative()
           target = lastCenter + stepOffset * direction
           if (Math.abs(target - firstCenter) > maxOffset) {
+            console.log('Timeout target exceeds 20%, reversing direction')
             direction *= -1
             target = lastCenter + stepOffset * direction
             if (Math.abs(target - firstCenter) > maxOffset) {
+              console.log('Timeout target still beyond limit, clamping')
               target = firstCenter + Math.sign(target - firstCenter) * maxOffset
             }
           }
@@ -210,7 +214,9 @@ export const blockAction = (instance, engine, time) => {
         ins.originHypotenuse = Math.sqrt((ins.height ** 2)
           + (ins.outwardOffset ** 2))
         engine.playAudio('rotate')
-      }
+            console.log('First block center set to', i.weightX.toFixed(2))
+          console.log('Final center set to', finalCenter.toFixed(2), 'diff from first',
+            (finalCenter - firstCenterDrop).toFixed(2))
       switch (collision) {
         case 1:
           checkBlockOut(instance, engine)
