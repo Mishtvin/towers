@@ -86,6 +86,23 @@ export const blockAction = (instance, engine, time) => {
       )
       swing(instance, engine, time)
       break
+    case constant.waitDrop:
+      swing(instance, engine, time)
+      if (Date.now() - i.waitStart >= i.waitDuration && typeof i.serverResult !== 'undefined') {
+        const center = line.x + i.calWidth
+        if (i.serverResult) {
+          i.weightX = center
+        } else {
+          i.weightX = center + (i.width * 0.8 * engine.utils.randomPositiveNegative())
+        }
+        const firstCenter = engine.getVariable(constant.firstBlockCenter) || (engine.width / 2)
+        const maxOffset = engine.width * 0.2
+        if (i.weightX > firstCenter + maxOffset) i.weightX = firstCenter + maxOffset
+        if (i.weightX < firstCenter - maxOffset) i.weightX = firstCenter - maxOffset
+        engine.setTimeMovement(constant.hookUpMovement, 500)
+        i.status = constant.beforeDrop
+      }
+      break
     case constant.beforeDrop:
       i.x = instance.weightX - instance.calWidth
       i.y = instance.weightY + (0.3 * instance.height) // add rope height
@@ -133,6 +150,16 @@ export const blockAction = (instance, engine, time) => {
             engine.setTimeMovement(constant.lightningMovement, 150)
           }
           instance.y = blockY
+          if (!engine.getVariable(constant.firstBlockCenter)) {
+            engine.setVariable(constant.firstBlockCenter, i.weightX)
+          }
+          const firstCenterDrop = engine.getVariable(constant.firstBlockCenter)
+          const maxCenterOffset = engine.width * 0.2
+          let finalCenter = i.weightX
+          if (finalCenter > firstCenterDrop + maxCenterOffset) finalCenter = firstCenterDrop + maxCenterOffset
+          if (finalCenter < firstCenterDrop - maxCenterOffset) finalCenter = firstCenterDrop - maxCenterOffset
+          i.weightX = finalCenter
+          i.x = finalCenter - i.calWidth
           line.y = blockY
           line.x = i.x - i.calWidth
           line.collisionX = line.x + i.width
@@ -234,6 +261,7 @@ export const blockPainter = (instance, engine) => {
   const { status } = instance
   switch (status) {
     case constant.swing:
+    case constant.waitDrop:
       drawSwingBlock(instance, engine)
       break
     case constant.drop:
