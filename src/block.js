@@ -168,20 +168,24 @@ export const blockAction = (instance, engine, time) => {
         console.log('Calculated drop target due to timeout', target.toFixed(2))
       }
       if (i.pendingDrop) {
+
         const target = (typeof i.dropTarget !== 'undefined') ? i.dropTarget : line.x + i.calWidth
         const diff = Math.abs(i.weightX - target)
         const angle = Math.abs(i.angle)
         const aligned = diff < 1 && angle < 0.1
         console.log('Checking alignment diff:', diff.toFixed(2), 'angle:', angle.toFixed(2), 'aligned:', aligned)
         const alignTimeout = (Date.now() - i.waitStart) > (i.waitDuration + 2000)
+
         if (alignTimeout && !aligned) {
           console.log('Alignment timeout reached, forcing drop')
         }
         if (aligned || alignTimeout) {
+
           i.dropStartX = i.weightX
           i.dropStartY = i.weightY
           engine.setTimeMovement(constant.hookUpMovement, 300)
           console.log('Alignment reached, starting drop')
+
           i.status = constant.beforeDrop
         }
       }
@@ -210,7 +214,9 @@ export const blockAction = (instance, engine, time) => {
         ins.originHypotenuse = Math.sqrt((ins.height ** 2)
           + (ins.outwardOffset ** 2))
         engine.playAudio('rotate')
-      }
+            console.log('First block center set to', i.weightX.toFixed(2))
+          console.log('Final center set to', finalCenter.toFixed(2), 'diff from first',
+            (finalCenter - firstCenterDrop).toFixed(2))
       switch (collision) {
         case 1:
           checkBlockOut(instance, engine)
@@ -243,9 +249,11 @@ export const blockAction = (instance, engine, time) => {
           }
           const firstCenterDrop = engine.getVariable(constant.firstBlockCenter)
           const maxCenterOffset = engine.width * 0.2
+
           let finalCenter = typeof i.dropTarget !== 'undefined'
             ? i.dropTarget
             : i.weightX
+
           const diffFromCenter = finalCenter - firstCenterDrop
           if (Math.abs(diffFromCenter) > maxCenterOffset) {
             console.log('Final center diff', diffFromCenter.toFixed(2), 'exceeds limit, adjusting opposite')
@@ -253,8 +261,10 @@ export const blockAction = (instance, engine, time) => {
           }
           i.weightX = finalCenter
           engine.setVariable(constant.lastBlockCenter, finalCenter)
+
           console.log('Final center set to', finalCenter.toFixed(2), 'diff from first',
             (finalCenter - firstCenterDrop).toFixed(2))
+
           i.x = finalCenter - i.calWidth
           line.y = blockY
           line.x = i.x - i.calWidth
