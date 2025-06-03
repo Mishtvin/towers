@@ -106,33 +106,19 @@ export const blockAction = (instance, engine, time) => {
         && (Date.now() - i.waitStart) >= i.waitDuration) {
         console.log('Server result received, preparing drop:', i.serverResult)
         i.pendingDrop = true
-      }
-      // safety timeout: drop after 3 seconds regardless of server result
-      if (!i.pendingDrop && (Date.now() - i.waitStart) > 3000) {
-        i.serverResult = false
-        console.log('Build request timed out, forcing drop')
-        i.pendingDrop = true
-      }
-      if (i.pendingDrop) {
-        const center = line.x + i.calWidth
-        const diff = Math.abs(i.weightX - center)
-        const angle = Math.abs(i.angle)
-        const aligned = diff < 2 && angle < 0.1
-        console.log('Checking alignment diff:', diff.toFixed(2), 'angle:', angle.toFixed(2), 'aligned:', aligned)
-        const alignTimeout = (Date.now() - i.waitStart) > (i.waitDuration + 5000)
-        if (alignTimeout && !aligned) {
-          console.log('Alignment timeout reached, forcing drop')
-        }
-        if (aligned || alignTimeout) {
-          console.log('Block aligned, calculating drop target')
-          const firstCenter = engine.getVariable(constant.firstBlockCenter)
-            || (engine.width / 2)
-          const lastCenter = engine.getVariable(constant.lastBlockCenter)
-            || firstCenter
+        const firstCenter = engine.getVariable(constant.firstBlockCenter)
+          || (engine.width / 2)
+        const lastCenter = engine.getVariable(constant.lastBlockCenter)
+          || firstCenter
+        const successSoFar = engine.getVariable(constant.successCount, 0)
+        let target
+        if (successSoFar === 0) {
+          target = firstCenter
+        } else {
           const stepOffset = engine.width * 0.05
           const maxOffset = engine.width * 0.2
           let direction = engine.utils.randomPositiveNegative()
-          let target = lastCenter + stepOffset * direction
+          target = lastCenter + stepOffset * direction
           if (Math.abs(target - firstCenter) > maxOffset) {
             direction *= -1
             target = lastCenter + stepOffset * direction
@@ -140,20 +126,69 @@ export const blockAction = (instance, engine, time) => {
               target = firstCenter + Math.sign(target - firstCenter) * maxOffset
             }
           }
-          console.log(
-            'Drop target', target.toFixed(2),
-            'lastCenter', lastCenter.toFixed(2),
-            'firstCenter', firstCenter.toFixed(2)
-          )
-          i.weightX = target
-          engine.setTimeMovement(constant.hookUpMovement, 500)
+        }
+        i.dropTarget = target
+        console.log(
+          'Calculated drop target', target.toFixed(2),
+          'lastCenter', lastCenter.toFixed(2),
+          'firstCenter', firstCenter.toFixed(2)
+        )
+      }
+      // safety timeout: drop after 3 seconds regardless of server result
+      if (!i.pendingDrop && (Date.now() - i.waitStart) > 3000) {
+        i.serverResult = false
+        console.log('Build request timed out, forcing drop')
+        i.pendingDrop = true
+        const firstCenter = engine.getVariable(constant.firstBlockCenter)
+          || (engine.width / 2)
+        const lastCenter = engine.getVariable(constant.lastBlockCenter)
+          || firstCenter
+        const successSoFar = engine.getVariable(constant.successCount, 0)
+        let target
+        if (successSoFar === 0) {
+          target = firstCenter
+        } else {
+          const stepOffset = engine.width * 0.05
+          const maxOffset = engine.width * 0.2
+          let direction = engine.utils.randomPositiveNegative()
+          target = lastCenter + stepOffset * direction
+          if (Math.abs(target - firstCenter) > maxOffset) {
+            direction *= -1
+            target = lastCenter + stepOffset * direction
+            if (Math.abs(target - firstCenter) > maxOffset) {
+              target = firstCenter + Math.sign(target - firstCenter) * maxOffset
+            }
+          }
+        }
+        i.dropTarget = target
+        console.log('Calculated drop target due to timeout', target.toFixed(2))
+      }
+      if (i.pendingDrop) {
+
+        const target = (typeof i.dropTarget !== 'undefined') ? i.dropTarget : line.x + i.calWidth
+        const diff = Math.abs(i.weightX - target)
+        const angle = Math.abs(i.angle)
+        const aligned = diff < 1 && angle < 0.1
+        console.log('Checking alignment diff:', diff.toFixed(2), 'angle:', angle.toFixed(2), 'aligned:', aligned)
+        const alignTimeout = (Date.now() - i.waitStart) > (i.waitDuration + 2000)
+
+        if (alignTimeout && !aligned) {
+          console.log('Alignment timeout reached, forcing drop')
+        }
+        if (aligned || alignTimeout) {
+
+          i.dropStartX = i.weightX
+          i.dropStartY = i.weightY
+          engine.setTimeMovement(constant.hookUpMovement, 300)
+          console.log('Alignment reached, starting drop')
+
           i.status = constant.beforeDrop
         }
       }
       break
     case constant.beforeDrop:
-      i.x = instance.weightX - instance.calWidth
-      i.y = instance.weightY + (0.3 * instance.height) // add rope height
+      i.x = i.dropStartX - instance.calWidth
+      i.y = i.dropStartY + (0.3 * instance.height) // add rope height
       i.rotate = 0
       i.ay = engine.pixelsPerFrame(0.0003 * engine.height) // acceleration of gravity
       i.startDropTime = time
@@ -207,7 +242,11 @@ export const blockAction = (instance, engine, time) => {
           }
           const firstCenterDrop = engine.getVariable(constant.firstBlockCenter)
           const maxCenterOffset = engine.width * 0.2
-          let finalCenter = i.weightX
+
+          let finalCenter = typeof i.dropTarget !== 'undefined'
+            ? i.dropTarget
+            : i.weightX
+
           const diffFromCenter = finalCenter - firstCenterDrop
           if (Math.abs(diffFromCenter) > maxCenterOffset) {
             console.log('Final center diff', diffFromCenter.toFixed(2), 'exceeds limit, adjusting opposite')
