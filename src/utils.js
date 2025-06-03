@@ -119,15 +119,19 @@ export const touchEventHandler = (engine) => {
     const { buildRequest } = engine.getVariable(constant.gameUserOption)
     if (buildRequest) {
       Promise.resolve(buildRequest()).then((res) => {
+
         console.log('Build request result:', res)
         b.serverResult = res && res.success
       }).catch((err) => {
         console.log('Build request error:', err)
+
         b.serverResult = false
       })
     } else {
       // default success if no request provided
+
       console.log('Build request default success')
+
       b.serverResult = true
     }
   }
