@@ -161,7 +161,8 @@ export const blockAction = (instance, engine, time) => {
         const target = (typeof i.dropTarget !== 'undefined') ? i.dropTarget : line.x + i.calWidth
         const diff = Math.abs(i.weightX - target)
         const angle = Math.abs(i.angle)
-        const aligned = diff < 1 && angle < 0.1
+        // wait for the block to be almost exactly at the target position
+        const aligned = diff < 0.5 && angle < 0.1
         console.log('Checking alignment diff:', diff.toFixed(2), 'angle:', angle.toFixed(2), 'aligned:', aligned)
         const alignTimeout = (Date.now() - i.waitStart) > (i.waitDuration + 2000)
 
@@ -170,7 +171,8 @@ export const blockAction = (instance, engine, time) => {
         }
         if (aligned || alignTimeout) {
 
-          i.dropStartX = (typeof i.dropTarget !== 'undefined') ? i.dropTarget : i.weightX
+          // start dropping from the exact current position to avoid visible jumps
+          i.dropStartX = i.weightX
           i.dropStartY = i.weightY
           engine.setTimeMovement(constant.hookUpMovement, 300)
           console.log('Alignment reached, starting drop')
