@@ -49,12 +49,18 @@ const checkBlockOut = (instance, engine) => {
     if (instance.y - instance.width >= engine.height) {
       instance.visible = false
       instance.status = constant.out
-      addFailedCount(engine)
+      if (!instance.failedNotified) {
+        instance.failedNotified = true
+        addFailedCount(engine)
+      }
     }
   } else if (instance.y >= engine.height) {
     instance.visible = false
     instance.status = constant.out
-    addFailedCount(engine)
+    if (!instance.failedNotified) {
+      instance.failedNotified = true
+      addFailedCount(engine)
+    }
   }
 }
 
@@ -97,6 +103,7 @@ export const blockAction = (instance, engine, time) => {
     instance.updateHeight(engine.getVariable(constant.blockHeight))
     instance.x = engine.width / 2
     instance.y = ropeHeight * -1.5
+    instance.failedNotified = false
   }
   const line = engine.getInstance('line')
   if (i.lastLoggedStatus !== i.status) {
@@ -199,15 +206,27 @@ export const blockAction = (instance, engine, time) => {
       }
       switch (collision) {
         case 1:
+          if (!instance.failedNotified) {
+            instance.failedNotified = true
+            addFailedCount(engine)
+          }
           checkBlockOut(instance, engine)
           break
         case 2:
+          if (!instance.failedNotified) {
+            instance.failedNotified = true
+            addFailedCount(engine)
+          }
           i.status = constant.rotateLeft
           instance.y = blockY
           instance.outwardOffset = (line.x + instance.calWidth) - instance.x
           calRotate(instance)
           break
         case 3:
+          if (!instance.failedNotified) {
+            instance.failedNotified = true
+            addFailedCount(engine)
+          }
           i.status = constant.rotateRight
           instance.y = blockY
           instance.outwardOffset = (line.collisionX + instance.calWidth) - instance.x
