@@ -5,7 +5,8 @@ import {
   touchEventHandler,
   addSuccessCount,
   addFailedCount,
-  addScore
+  addScore,
+  getNextBlockCenter
 } from './utils'
 import * as constant from './constant'
 
@@ -111,31 +112,18 @@ export const blockAction = (instance, engine, time) => {
         i.pendingDrop = true
         const firstCenter = engine.getVariable(constant.firstBlockCenter)
           || (engine.width / 2)
-        const lastCenter = engine.getVariable(constant.lastBlockCenter)
-          || firstCenter
         const successSoFar = engine.getVariable(constant.successCount, 0)
         let target
         if (successSoFar === 0) {
           target = firstCenter
         } else {
-          const stepOffset = engine.width * 0.05
-          const maxOffset = engine.width * 0.2
-          let direction = engine.utils.randomPositiveNegative()
-          target = lastCenter + stepOffset * direction
-          if (Math.abs(target - firstCenter) > maxOffset) {
-            console.log('Target exceeds 20%, reversing direction')
-            direction *= -1
-            target = lastCenter + stepOffset * direction
-            if (Math.abs(target - firstCenter) > maxOffset) {
-              console.log('Still beyond limit, clamping to max offset')
-              target = firstCenter + Math.sign(target - firstCenter) * maxOffset
-            }
-          }
+          target = getNextBlockCenter(engine)
         }
         i.dropTarget = target
         console.log(
           'Calculated drop target', target.toFixed(2),
-          'lastCenter', lastCenter.toFixed(2),
+          'lastCenter',
+          (engine.getVariable(constant.lastBlockCenter) || firstCenter).toFixed(2),
           'firstCenter', firstCenter.toFixed(2)
         )
       }
@@ -146,26 +134,12 @@ export const blockAction = (instance, engine, time) => {
         i.pendingDrop = true
         const firstCenter = engine.getVariable(constant.firstBlockCenter)
           || (engine.width / 2)
-        const lastCenter = engine.getVariable(constant.lastBlockCenter)
-          || firstCenter
         const successSoFar = engine.getVariable(constant.successCount, 0)
         let target
         if (successSoFar === 0) {
           target = firstCenter
         } else {
-          const stepOffset = engine.width * 0.05
-          const maxOffset = engine.width * 0.2
-          let direction = engine.utils.randomPositiveNegative()
-          target = lastCenter + stepOffset * direction
-          if (Math.abs(target - firstCenter) > maxOffset) {
-            console.log('Timeout target exceeds 20%, reversing direction')
-            direction *= -1
-            target = lastCenter + stepOffset * direction
-            if (Math.abs(target - firstCenter) > maxOffset) {
-              console.log('Timeout target still beyond limit, clamping')
-              target = firstCenter + Math.sign(target - firstCenter) * maxOffset
-            }
-          }
+          target = getNextBlockCenter(engine)
         }
         i.dropTarget = target
         console.log('Calculated drop target due to timeout', target.toFixed(2))
