@@ -114,10 +114,16 @@ export const blockAction = (instance, engine, time) => {
           || (engine.width / 2)
         const successSoFar = engine.getVariable(constant.successCount, 0)
         let target
-        if (successSoFar === 0) {
-          target = firstCenter
+        if (i.serverResult) {
+          if (successSoFar === 0) {
+            target = firstCenter
+          } else {
+            target = getNextBlockCenter(engine)
+          }
         } else {
-          target = getNextBlockCenter(engine)
+          const failOffset = engine.width * 0.25
+          const direction = engine.utils.randomPositiveNegative()
+          target = firstCenter + (failOffset * direction)
         }
         i.dropTarget = target
         console.log(
@@ -136,10 +142,16 @@ export const blockAction = (instance, engine, time) => {
           || (engine.width / 2)
         const successSoFar = engine.getVariable(constant.successCount, 0)
         let target
-        if (successSoFar === 0) {
-          target = firstCenter
+        if (i.serverResult) {
+          if (successSoFar === 0) {
+            target = firstCenter
+          } else {
+            target = getNextBlockCenter(engine)
+          }
         } else {
-          target = getNextBlockCenter(engine)
+          const failOffset = engine.width * 0.25
+          const direction = engine.utils.randomPositiveNegative()
+          target = firstCenter + (failOffset * direction)
         }
         i.dropTarget = target
         console.log('Calculated drop target due to timeout', target.toFixed(2))
@@ -158,7 +170,7 @@ export const blockAction = (instance, engine, time) => {
         }
         if (aligned || alignTimeout) {
 
-          i.dropStartX = i.weightX
+          i.dropStartX = (typeof i.dropTarget !== 'undefined') ? i.dropTarget : i.weightX
           i.dropStartY = i.weightY
           engine.setTimeMovement(constant.hookUpMovement, 300)
           console.log('Alignment reached, starting drop')
