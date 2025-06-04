@@ -143,23 +143,31 @@ export const touchEventHandler = (engine) => {
     b.status = constant.waitDrop
     b.waitStart = Date.now()
 
-    b.waitDuration = engine.utils.random(300, 600)
-
-    console.log('waitDuration set to', b.waitDuration)
+    const successSoFar = engine.getVariable(constant.successCount, 0)
     const { buildRequest } = engine.getVariable(constant.gameUserOption)
-    if (buildRequest) {
-      console.log('Calling buildRequest')
-      Promise.resolve(buildRequest()).then((res) => {
-        console.log('Build request result:', res)
-        b.serverResult = res && res.success
-      }).catch((err) => {
-        console.log('Build request error:', err)
-        b.serverResult = false
-      })
-    } else {
-      // default success if no request provided
-      console.log('Build request default success')
+
+    // the first block is always a success and requires no request
+    if (successSoFar === 0) {
+      b.waitDuration = 0
       b.serverResult = true
+      console.log('First block, skipping buildRequest')
+    } else {
+      b.waitDuration = engine.utils.random(300, 600)
+      console.log('waitDuration set to', b.waitDuration)
+      if (buildRequest) {
+        console.log('Calling buildRequest')
+        Promise.resolve(buildRequest()).then((res) => {
+          console.log('Build request result:', res)
+          b.serverResult = res && res.success
+        }).catch((err) => {
+          console.log('Build request error:', err)
+          b.serverResult = false
+        })
+      } else {
+        // default success if no request provided
+        console.log('Build request default success')
+        b.serverResult = true
+      }
     }
   } else {
     console.log('No active swing block for touch event')
