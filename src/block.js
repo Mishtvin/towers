@@ -78,9 +78,8 @@ const computeDropTarget = (engine, serverResult) => {
       target = lastCenter + Math.sign(target - lastCenter) * maxLastDiff
     }
   } else {
-    const failOffset = engine.width * 0.25
     const direction = engine.utils.randomPositiveNegative()
-    target = firstCenter + (failOffset * direction)
+    target = engine.width * (direction > 0 ? 0.9 : 0.1)
   }
   return target
 }
@@ -163,8 +162,8 @@ export const blockAction = (instance, engine, time) => {
         }
         if (aligned || alignTimeout) {
 
-          // start dropping from the predetermined target if success
-          i.dropStartX = i.serverResult ? i.dropTarget : i.weightX
+          // drop from computed target if available, otherwise current position
+          i.dropStartX = typeof i.dropTarget !== 'undefined' ? i.dropTarget : i.weightX
           i.dropStartY = i.weightY
           engine.setTimeMovement(constant.hookUpMovement, 300)
           console.log('Alignment reached, starting drop')
@@ -234,7 +233,7 @@ export const blockAction = (instance, engine, time) => {
           let finalCenter = typeof i.dropStartX !== 'undefined'
             ? i.dropStartX
             : i.weightX
-          if (i.serverResult && typeof i.dropTarget !== 'undefined') {
+          if (typeof i.dropTarget !== 'undefined') {
             finalCenter = i.dropTarget
           }
 
