@@ -458,9 +458,7 @@
         },
         setGameFailed: function (f) {
           $("#score").text(score);
-          if (f >= 3) {
-            setTimeout(overShowOver, 1500);
-          }
+          setTimeout(overShowOver, 1500);
         },
         buildRequest: function () {
           return fetch("/api/build").then(function (r) {
