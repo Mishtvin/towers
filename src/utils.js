@@ -184,7 +184,7 @@ export const addFailedCount = (engine) => {
   engine.setVariable(constant.failedCount, failed)
   engine.setVariable(constant.perfectCount, 0)
   if (setGameFailed) setGameFailed(failed)
-  if (failed >= 3) {
+  if (failed >= 1) {
     engine.pauseAudio('bgm')
     engine.playAudio('game-over')
     engine.setVariable(constant.gameStartNow, false)

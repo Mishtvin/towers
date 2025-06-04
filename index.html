@@ -67,6 +67,9 @@
       $('#score').text(score)
       if (f >= 3) overShowOver()
     }
+    ,buildRequest: function () {
+      return fetch('/api/build').then(function (r) { return r.json() })
+    }
   }
 
   // game init with option
