@@ -58,6 +58,33 @@ const checkBlockOut = (instance, engine) => {
   }
 }
 
+const computeDropTarget = (engine, serverResult) => {
+  const firstCenter = engine.getVariable(constant.firstBlockCenter)
+    || (engine.width / 2)
+  const successSoFar = engine.getVariable(constant.successCount, 0)
+  let target
+  if (serverResult) {
+    target = successSoFar === 0
+      ? firstCenter
+      : getNextBlockCenter(engine)
+    const lastCenter = engine.getVariable(constant.lastBlockCenter)
+      || firstCenter
+    const maxFirstDiff = engine.width * 0.2
+    const maxLastDiff = engine.width * 0.05
+    if (Math.abs(target - firstCenter) > maxFirstDiff) {
+      target = firstCenter + Math.sign(target - firstCenter) * maxFirstDiff
+    }
+    if (Math.abs(target - lastCenter) > maxLastDiff) {
+      target = lastCenter + Math.sign(target - lastCenter) * maxLastDiff
+    }
+  } else {
+    const failOffset = engine.width * 0.25
+    const direction = engine.utils.randomPositiveNegative()
+    target = firstCenter + (failOffset * direction)
+  }
+  return target
+}
+
 export const blockAction = (instance, engine, time) => {
   const i = instance
   const ropeHeight = engine.getVariable(constant.ropeHeight)
@@ -110,51 +137,16 @@ export const blockAction = (instance, engine, time) => {
         && (Date.now() - i.waitStart) >= i.waitDuration) {
         console.log('Server result received, preparing drop:', i.serverResult)
         i.pendingDrop = true
-        const firstCenter = engine.getVariable(constant.firstBlockCenter)
-          || (engine.width / 2)
-        const successSoFar = engine.getVariable(constant.successCount, 0)
-        let target
-        if (i.serverResult) {
-          if (successSoFar === 0) {
-            target = firstCenter
-          } else {
-            target = getNextBlockCenter(engine)
-          }
-        } else {
-          const failOffset = engine.width * 0.25
-          const direction = engine.utils.randomPositiveNegative()
-          target = firstCenter + (failOffset * direction)
-        }
-        i.dropTarget = target
-        console.log(
-          'Calculated drop target', target.toFixed(2),
-          'lastCenter',
-          (engine.getVariable(constant.lastBlockCenter) || firstCenter).toFixed(2),
-          'firstCenter', firstCenter.toFixed(2)
-        )
+        i.dropTarget = computeDropTarget(engine, i.serverResult)
+        console.log('Calculated drop target', i.dropTarget.toFixed(2))
       }
       // safety timeout: drop after 3 seconds regardless of server result
       if (!i.pendingDrop && (Date.now() - i.waitStart) > 3000) {
         i.serverResult = false
         console.log('Build request timed out, forcing drop')
         i.pendingDrop = true
-        const firstCenter = engine.getVariable(constant.firstBlockCenter)
-          || (engine.width / 2)
-        const successSoFar = engine.getVariable(constant.successCount, 0)
-        let target
-        if (i.serverResult) {
-          if (successSoFar === 0) {
-            target = firstCenter
-          } else {
-            target = getNextBlockCenter(engine)
-          }
-        } else {
-          const failOffset = engine.width * 0.25
-          const direction = engine.utils.randomPositiveNegative()
-          target = firstCenter + (failOffset * direction)
-        }
-        i.dropTarget = target
-        console.log('Calculated drop target due to timeout', target.toFixed(2))
+        i.dropTarget = computeDropTarget(engine, i.serverResult)
+        console.log('Calculated drop target due to timeout', i.dropTarget.toFixed(2))
       }
       if (i.pendingDrop) {
 
@@ -171,8 +163,8 @@ export const blockAction = (instance, engine, time) => {
         }
         if (aligned || alignTimeout) {
 
-          // start dropping from the exact current position to avoid visible jumps
-          i.dropStartX = i.weightX
+          // start dropping from the predetermined target if success
+          i.dropStartX = i.serverResult ? i.dropTarget : i.weightX
           i.dropStartY = i.weightY
           engine.setTimeMovement(constant.hookUpMovement, 300)
           console.log('Alignment reached, starting drop')
@@ -242,11 +234,19 @@ export const blockAction = (instance, engine, time) => {
           let finalCenter = typeof i.dropStartX !== 'undefined'
             ? i.dropStartX
             : i.weightX
+          if (i.serverResult && typeof i.dropTarget !== 'undefined') {
+            finalCenter = i.dropTarget
+          }
 
           const diffFromCenter = finalCenter - firstCenterDrop
+          const maxLastOffset = engine.width * 0.05
+          const lastCenterClamp = engine.getVariable(constant.lastBlockCenter) || firstCenterDrop
           if (Math.abs(diffFromCenter) > maxCenterOffset) {
             console.log('Final center diff', diffFromCenter.toFixed(2), 'exceeds limit, adjusting opposite')
             finalCenter = firstCenterDrop - Math.sign(diffFromCenter) * maxCenterOffset
+          }
+          if (Math.abs(finalCenter - lastCenterClamp) > maxLastOffset) {
+            finalCenter = lastCenterClamp + Math.sign(finalCenter - lastCenterClamp) * maxLastOffset
           }
           i.weightX = finalCenter
           engine.setVariable(constant.lastBlockCenter, finalCenter)
