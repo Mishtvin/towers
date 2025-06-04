@@ -100,6 +100,25 @@ export const getHookStatus = (engine) => {
   return constant.hookNormal
 }
 
+export const getNextBlockCenter = (engine) => {
+  const firstCenter = engine.getVariable(constant.firstBlockCenter)
+    || (engine.width / 2)
+  const lastCenter = engine.getVariable(constant.lastBlockCenter)
+    || firstCenter
+  const step = engine.width * 0.05
+  const maxDiff = engine.width * 0.2
+  let direction = engine.utils.randomPositiveNegative()
+  let target = lastCenter + step * direction
+  if (Math.abs(target - firstCenter) > maxDiff) {
+    direction *= -1
+    target = lastCenter + step * direction
+    if (Math.abs(target - firstCenter) > maxDiff) {
+      target = firstCenter + Math.sign(target - firstCenter) * maxDiff
+    }
+  }
+  return target
+}
+
 export const touchEventHandler = (engine) => {
   console.log('touchEventHandler invoked')
   if (!engine.getVariable(constant.gameStartNow)) return
