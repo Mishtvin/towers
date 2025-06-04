@@ -225,8 +225,8 @@ export const blockAction = (instance, engine, time) => {
           const firstCenterDrop = engine.getVariable(constant.firstBlockCenter)
           const maxCenterOffset = engine.width * 0.2
 
-          let finalCenter = typeof i.dropTarget !== 'undefined'
-            ? i.dropTarget
+          let finalCenter = typeof i.dropStartX !== 'undefined'
+            ? i.dropStartX
             : i.weightX
 
           const diffFromCenter = finalCenter - firstCenterDrop
