@@ -353,7 +353,7 @@
         background: #201f2f;
         border: 1px solid #26233a;
         border-radius: 0.08rem 0 0 0.08rem;
-        padding: 0 0.12rem;
+        padding: 5px;
         gap: 0.04rem;
       }
       .bet-input input {
@@ -372,7 +372,7 @@
         border: 1px solid #26233a;
         color: #fff;
         font-weight: 500;
-        padding: 0 0.12rem;
+        padding: 6px;
         font-size: 0.14rem;
         cursor: pointer;
       }
@@ -397,7 +397,7 @@
         border: 1px solid #26233a;
         color: #aaaabb;
         font-weight: 500;
-        padding: 0.08rem 0;
+        padding: 5px;
         cursor: pointer;
         font-size: 0.14rem;
       }
@@ -436,7 +436,7 @@
       }
       .control-button {
         padding: 0.1rem 0.3rem;
-        margin: 0.1rem;
+
         font-size: 0.2rem;
         color: #fff;
         background: linear-gradient(135deg, #4c6ef5, #15aabf);
@@ -450,57 +450,6 @@
       .control-button:hover {
         transform: translateY(-2px);
       }
-<<<<<<< HEAD
-      .bottom-controls input {
-        padding: 0.1rem 0.2rem;
-        margin: 0.1rem;
-        font-size: 0.2rem;
-        border: none;
-        border-radius: 0.05rem;
-      }
-<<<<<<< HEAD
-=======
-      .difficulty-buttons {
-        display: flex;
-
-        gap: 0.1rem;
-      }
-      .difficulty-button {
-        padding: 0.1rem 0.3rem;
-        margin: 0.1rem;
-        font-size: 0.2rem;
-        color: #fff;
-        background: linear-gradient(135deg, #868e96, #495057);
-        border: none;
-        border-radius: 0.1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        cursor: pointer;
-        transition: transform 0.2s, background 0.2s;
-      }
-      .difficulty-button:hover {
-        transform: translateY(-2px);
-      }
-      .difficulty-button.selected {
-        background: linear-gradient(135deg, #15aabf, #4c6ef5);
-
-      }
->>>>>>> fc15078e7cbc369d0605bc942a0e895dacbdebcd
-      .bottom-controls {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        padding: 0.2rem;
-        box-sizing: border-box;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        align-items: center;
-        gap: 0.1rem;
-      }
-=======
->>>>>>> f974e3bf8973d0efc3238a83051f5ffdf0e32869
       #retry {
         padding: 0.1rem 0.3rem;
         margin: 0.1rem auto 0;
@@ -537,7 +486,7 @@
         <div class="action-1">
           <img src="./assets/main-index-title.png" class="title swing" />
         </div>
-        <div class="action-2">
+        <div class="action-2" style="display:none;">
           <img
             id="start-image"
             src="./assets/main-index-start.png"
@@ -570,10 +519,6 @@
     <div class="wxShare hide"><img src="./assets/main-share-icon.png" /></div>
   </div>
   <div class="bottom-controls">
-<<<<<<< HEAD
-    <input id="amount-input" type="number" placeholder="Amount" />
-    <input id="difficulty-input" type="number" placeholder="Difficulty" />
-=======
     <div class="bet-block">
       <div class="bet-label">Bet Amount <span class="bet-icon">💰</span></div>
       <div class="bet-input-group">
@@ -586,18 +531,17 @@
       </div>
     </div>
     <div class="difficulty-block">
-      <div class="difficulty-label">Difficulty <span class="info-icon">i</span></div>
+      <div class="difficulty-label">Difficulty</div>
       <div id="difficulty-buttons" class="difficulty-options">
         <button class="difficulty-option" data-level="1">Easy</button>
         <button class="difficulty-option" data-level="2">Medium</button>
         <button class="difficulty-option" data-level="3">Hard</button>
-        <button class="difficulty-option selected" data-level="4">Daredevil</button>
+
       </div>
     </div>
     <div class="action-block">
       <button id="start" class="start-button">Start Game</button>
     </div>
->>>>>>> f974e3bf8973d0efc3238a83051f5ffdf0e32869
     <button id="build" class="control-button">Build</button>
     <button id="cashout" class="control-button">Cashout</button>
   </div>
@@ -618,7 +562,7 @@
       // init window height and width
       var bottomSpace = document.querySelector('.bottom-controls').offsetHeight;
       var gameWidth = window.innerWidth;
-      var gameHeight = window.innerHeight - bottomSpace;
+      var gameHeight = window.innerHeight - bottomSpace+10;
       var ratio = 1.5;
       if (gameHeight / gameWidth < ratio) {
         gameWidth = Math.ceil(gameHeight / ratio);
@@ -721,9 +665,6 @@
       }
 
       // click event
-<<<<<<< HEAD
-      $("#start").on("click", function () {
-=======
       $(".difficulty-option").on("click", function () {
         $(".difficulty-option").removeClass("selected");
         $(this).addClass("selected");
@@ -740,10 +681,9 @@
       });
 
       $("#start, #start-image").on("click", function () {
->>>>>>> f974e3bf8973d0efc3238a83051f5ffdf0e32869
         if (gameStart) return;
         amount = parseFloat($("#amount-input").val()) || 0;
-        difficulty = parseFloat($("#difficulty-input").val()) || 1;
+        difficulty = parseFloat($("#difficulty-buttons .selected").data("level")) || 1;
         score = amount;
         game.setVariable('GAME_SCORE', score);
         gameStart = true;
