@@ -32,18 +32,15 @@ export const endAnimate = (engine) => {
     y: engine.width * 0.2,
     textAlign: 'right'
   })
-  const score = engine.getImg('score')
-  const scoreWidth = score.width
-  const scoreHeight = score.height
-  const zoomedWidth = engine.width * 0.35
-  const zoomedHeight = (scoreHeight * zoomedWidth) / scoreWidth
-  engine.ctx.drawImage(
-    score,
-    engine.width * 0.61,
-    engine.width * 0.038,
-    zoomedWidth,
-    zoomedHeight
-  )
+  // draw $ icon instead of the original Score label
+  drawYellowString(engine, {
+    string: '$',
+    size: engine.width * 0.18,
+    x: engine.width * 0.61,
+    y: engine.width * 0.12,
+    textAlign: 'left',
+    fontWeight: 'bold'
+  })
   drawYellowString(engine, {
     string: gameScore,
     size: engine.width * 0.06,

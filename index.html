@@ -627,7 +627,7 @@
           if (game) game.setVariable('GAME_SCORE', score);
         },
         setGameFailed: function (f) {
-          $("#score").text(score);
+          $("#score").text("Game over");
           setTimeout(overShowOver, 1500);
         },
         buildRequest: function () {
@@ -681,7 +681,15 @@
       });
 
       $("#start, #start-image").on("click", function () {
-        if (gameStart) return;
+        if (gameStart) {
+          // cashout behaviour
+          game.pauseBgm();
+          game.setVariable('GAME_START_NOW', false);
+          $("#score").text(score);
+          overShowOver();
+          gameStart = false;
+          return;
+        }
         amount = parseFloat($("#amount-input").val()) || 0;
         difficulty = parseFloat($("#difficulty-buttons .selected").data("level")) || 1;
         score = amount;
@@ -690,7 +698,8 @@
         setTimeout(function () {
           game.playBgm();
         });
-        $("#build, #cashout").show();
+        $("#build").show();
+        $("#start").text("Cashout");
         indexHide();
         game.setVariable('HARD_MODE', difficulty > 1);
         setTimeout(game.start, 400);
