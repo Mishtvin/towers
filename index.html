@@ -409,8 +409,10 @@
 
       // init window height and width
       var bottomSpace = 100;
-      var gameWidth = window.innerWidth;
-      var gameHeight = window.innerHeight - bottomSpace;
+      // expand the game area without CSS scaling
+      var scale = 1.3; // increase area by 30%
+      var gameWidth = window.innerWidth * scale;
+      var gameHeight = (window.innerHeight - bottomSpace) * scale;
       $(".content").css({ height: gameHeight + "px", width: gameWidth + "px" });
       $(".js-modal-content").css({ width: gameWidth + "px" });
 
