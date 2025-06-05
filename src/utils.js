@@ -40,11 +40,11 @@ export const getSwingBlockVelocity = (engine, time) => {
   if (hookSpeed) {
     return hookSpeed(successCount, gameScore)
   }
-  if (successCount < 1) {
-    return 0
-  }
   let hard
   switch (true) {
+    case successCount < 1:
+      hard = 0
+      break
     case successCount < 10:
       hard = 1
       break
