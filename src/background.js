@@ -29,11 +29,17 @@ export const backgroundImg = (engine) => {
   )
   engine.setVariable(constant.bgImgOffset, offsetHeight)
   engine.setVariable(constant.lineInitialOffset, engine.height - (zoomedHeight * 0.394))
-  engine.ctx.drawImage(
-    bg,
-    0, offsetHeight,
-    engine.width, zoomedHeight
-  )
+
+  const tiles = Math.ceil(engine.width / bgWidth)
+  for (let i = 0; i < tiles; i += 1) {
+    engine.ctx.drawImage(
+      bg,
+      i * bgWidth,
+      offsetHeight,
+      bgWidth,
+      zoomedHeight
+    )
+  }
 }
 
 const getLinearGradientColorRgb = (colorArr, colorIndex, proportion) => {
