@@ -12,12 +12,30 @@ import * as constant from './constant'
 export const endAnimate = (engine) => {
   const gameStartNow = engine.getVariable(constant.gameStartNow)
   if (!gameStartNow) return
+  const successCount = engine.getVariable(constant.successCount, 0)
   const gameScore = engine.getVariable(constant.gameScore, 0)
+  const threeFiguresOffset = Number(successCount) > 99 ? engine.width * 0.1 : 0
+
+  const multiplier = (1 + successCount * 0.5).toFixed(1)
+  drawYellowString(engine, {
+    string: successCount,
+    size: engine.width * 0.17,
+    x: (engine.width * 0.22) + threeFiguresOffset,
+    y: engine.width * 0.2,
+    textAlign: 'right'
+  })
   drawYellowString(engine, {
     string: gameScore,
     size: engine.width * 0.06,
     x: engine.width * 0.9,
     y: engine.width * 0.11,
+    textAlign: 'right'
+  })
+  drawYellowString(engine, {
+    string: `${multiplier}x`,
+    size: engine.width * 0.04,
+    x: engine.width * 0.9,
+    y: engine.width * 0.17,
     textAlign: 'right'
   })
 }
