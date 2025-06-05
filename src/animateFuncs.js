@@ -18,7 +18,7 @@ export const endAnimate = (engine) => {
 
   const multiplier = (1 + successCount * 0.5).toFixed(1)
   drawYellowString(engine, {
-    string: `${multiplier}x`,
+    string: successCount,
     size: engine.width * 0.17,
     x: (engine.width * 0.22) + threeFiguresOffset,
     y: engine.width * 0.2,
@@ -29,6 +29,13 @@ export const endAnimate = (engine) => {
     size: engine.width * 0.06,
     x: engine.width * 0.9,
     y: engine.width * 0.11,
+    textAlign: 'right'
+  })
+  drawYellowString(engine, {
+    string: `${multiplier}x`,
+    size: engine.width * 0.04,
+    x: engine.width * 0.9,
+    y: engine.width * 0.17,
     textAlign: 'right'
   })
 }
