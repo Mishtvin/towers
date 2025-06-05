@@ -327,6 +327,20 @@
         border: none;
         border-radius: 0.05rem;
       }
+      .difficulty-buttons {
+        display: flex;
+      }
+      .difficulty-button {
+        padding: 0.1rem 0.2rem;
+        margin: 0.1rem;
+        font-size: 0.2rem;
+        background: #fff;
+        border: none;
+        border-radius: 0.05rem;
+      }
+      .difficulty-button.selected {
+        background: #ccc;
+      }
       .bottom-controls {
         position: fixed;
         left: 0;
@@ -400,7 +414,12 @@
   </div>
   <div class="bottom-controls">
     <input id="amount-input" type="number" placeholder="Amount" />
-    <input id="difficulty-input" type="number" placeholder="Difficulty" />
+    <div id="difficulty-buttons" class="difficulty-buttons">
+      <button class="difficulty-button selected" data-level="1">Easy</button>
+      <button class="difficulty-button" data-level="2">Medium</button>
+      <button class="difficulty-button" data-level="3">Hard</button>
+      <button class="difficulty-button" data-level="4">Daredevil</button>
+    </div>
     <button id="build" class="control-button">Build</button>
     <button id="cashout" class="control-button">Cashout</button>
   </div>
@@ -523,10 +542,15 @@
       }
 
       // click event
+      $(".difficulty-button").on("click", function () {
+        $(".difficulty-button").removeClass("selected");
+        $(this).addClass("selected");
+      });
+
       $("#start").on("click", function () {
         if (gameStart) return;
         amount = parseFloat($("#amount-input").val()) || 0;
-        difficulty = parseFloat($("#difficulty-input").val()) || 1;
+        difficulty = parseFloat($("#difficulty-buttons .selected").data("level")) || 1;
         score = amount;
         game.setVariable('GAME_SCORE', score);
         gameStart = true;
