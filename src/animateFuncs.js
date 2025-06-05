@@ -13,7 +13,6 @@ export const endAnimate = (engine) => {
   const gameStartNow = engine.getVariable(constant.gameStartNow)
   if (!gameStartNow) return
   const successCount = engine.getVariable(constant.successCount, 0)
-  const failedCount = engine.getVariable(constant.failedCount)
   const gameScore = engine.getVariable(constant.gameScore, 0)
   const threeFiguresOffset = Number(successCount) > 99 ? engine.width * 0.1 : 0
 
@@ -52,26 +51,14 @@ export const endAnimate = (engine) => {
     y: engine.width * 0.11,
     textAlign: 'right'
   })
-  const { ctx } = engine
-  const heart = engine.getImg('heart')
-  const heartWidth = heart.width
-  const heartHeight = heart.height
-  const zoomedHeartWidth = engine.width * 0.08
-  const zoomedHeartHeight = (heartHeight * zoomedHeartWidth) / heartWidth
-  for (let i = 1; i <= 3; i += 1) {
-    ctx.save()
-    if (i <= failedCount) {
-      ctx.globalAlpha = 0.2
-    }
-    ctx.drawImage(
-      heart,
-      (engine.width * 0.66) + ((i - 1) * zoomedHeartWidth),
-      engine.width * 0.16,
-      zoomedHeartWidth,
-      zoomedHeartHeight
-    )
-    ctx.restore()
-  }
+  const multiplier = (1 + successCount * 0.5).toFixed(1)
+  drawYellowString(engine, {
+    string: `${multiplier}x`,
+    size: engine.width * 0.08,
+    x: engine.width * 0.66,
+    y: engine.width * 0.2,
+    textAlign: 'left'
+  })
 }
 
 export const startAnimate = (engine) => {
