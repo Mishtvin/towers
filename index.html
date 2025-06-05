@@ -320,6 +320,13 @@
         border-radius: 0.05rem;
         display: none;
       }
+      .bottom-controls input {
+        padding: 0.1rem 0.2rem;
+        margin: 0.1rem;
+        font-size: 0.2rem;
+        border: none;
+        border-radius: 0.05rem;
+      }
       .bottom-controls {
         position: fixed;
         left: 0;
@@ -392,6 +399,8 @@
     <div class="wxShare hide"><img src="./assets/main-share-icon.png" /></div>
   </div>
   <div class="bottom-controls">
+    <input id="amount-input" type="number" placeholder="Amount" />
+    <input id="difficulty-input" type="number" placeholder="Difficulty" />
     <button id="build" class="control-button">Build</button>
     <button id="cashout" class="control-button">Cashout</button>
   </div>
@@ -405,7 +414,9 @@
         gameStart,
         game,
         score,
-        successCount;
+        successCount,
+        amount,
+        difficulty;
 
       // init window height and width
       var bottomSpace = 100;
@@ -465,10 +476,13 @@
         canvasId: "canvas",
         soundOn: true,
         setGameScore: function (s) {
-          score = s;
+          score = amount * (1 + successCount * 0.5);
+          if (game) game.setVariable('GAME_SCORE', score);
         },
         setGameSuccess: function (s) {
           successCount = s;
+          score = amount * (1 + successCount * 0.5);
+          if (game) game.setVariable('GAME_SCORE', score);
         },
         setGameFailed: function (f) {
           $("#score").text(score);
@@ -511,12 +525,17 @@
       // click event
       $("#start").on("click", function () {
         if (gameStart) return;
+        amount = parseFloat($("#amount-input").val()) || 0;
+        difficulty = parseFloat($("#difficulty-input").val()) || 1;
+        score = amount;
+        game.setVariable('GAME_SCORE', score);
         gameStart = true;
         setTimeout(function () {
           game.playBgm();
         });
         $("#build, #cashout").show();
         indexHide();
+        game.setVariable('HARD_MODE', difficulty > 1);
         setTimeout(game.start, 400);
       });
 
