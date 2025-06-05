@@ -682,12 +682,8 @@
 
       $("#start, #start-image").on("click", function () {
         if (gameStart) {
-          // cashout behaviour
-          game.pauseBgm();
-          game.setVariable('GAME_START_NOW', false);
-          $("#score").text(score);
-          overShowOver();
-          gameStart = false;
+          // cashout behaviour -> restart game
+          window.location.reload();
           return;
         }
         amount = parseFloat($("#amount-input").val()) || 0;
