@@ -3,7 +3,6 @@ import {
   getLandBlockVelocity,
   getSwingBlockVelocity,
   touchEventHandler,
-  addSuccessCount,
   addFailedCount,
   addScore,
   getNextBlockCenter
@@ -236,7 +235,6 @@ export const blockAction = (instance, engine, time) => {
         case 5:
           i.status = constant.land
           const lastSuccessCount = engine.getVariable(constant.successCount)
-          addSuccessCount(engine)
           engine.setTimeMovement(constant.moveDownMovement, 500)
           if (lastSuccessCount === 10 || lastSuccessCount === 15) {
             engine.setTimeMovement(constant.lightningMovement, 150)
