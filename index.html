@@ -26,7 +26,7 @@
         text-align: center;
         width: 100%;
         height: 100%;
-        background: #f95240 url(assets/main-bg.png);
+        background: rgb(9, 12, 29);
       }
       @media screen and (min-height: 560px) {
         html {
@@ -312,13 +312,20 @@
         font-family: wenxue;
       }
       .control-button {
-        padding: 0.1rem 0.2rem;
+        padding: 0.1rem 0.3rem;
         margin: 0.1rem;
         font-size: 0.2rem;
-        background: #fff;
+        color: #fff;
+        background: linear-gradient(135deg, #4c6ef5, #15aabf);
         border: none;
-        border-radius: 0.05rem;
+        border-radius: 0.1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
         display: none;
+        transition: transform 0.2s;
+      }
+      .control-button:hover {
+        transform: translateY(-2px);
       }
       .bottom-controls input {
         padding: 0.1rem 0.2rem;
@@ -326,6 +333,28 @@
         font-size: 0.2rem;
         border: none;
         border-radius: 0.05rem;
+      }
+      .difficulty-buttons {
+        display: flex;
+        gap: 0.1rem;
+      }
+      .difficulty-button {
+        padding: 0.1rem 0.3rem;
+        margin: 0.1rem;
+        font-size: 0.2rem;
+        color: #fff;
+        background: linear-gradient(135deg, #868e96, #495057);
+        border: none;
+        border-radius: 0.1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+      }
+      .difficulty-button:hover {
+        transform: translateY(-2px);
+      }
+      .difficulty-button.selected {
+        background: linear-gradient(135deg, #15aabf, #4c6ef5);
       }
       .bottom-controls {
         position: fixed;
@@ -338,12 +367,19 @@
         align-items: center;
       }
       #retry {
-        padding: 0.1rem 0.2rem;
+        padding: 0.1rem 0.3rem;
         margin: 0.1rem auto 0;
         font-size: 0.2rem;
-        background: #fff;
+        color: #fff;
+        background: linear-gradient(135deg, #4c6ef5, #15aabf);
         border: none;
-        border-radius: 0.05rem;
+        border-radius: 0.1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      #retry:hover {
+        transform: translateY(-2px);
       }
     </style>
   </head>
@@ -400,7 +436,12 @@
   </div>
   <div class="bottom-controls">
     <input id="amount-input" type="number" placeholder="Amount" />
-    <input id="difficulty-input" type="number" placeholder="Difficulty" />
+    <div id="difficulty-buttons" class="difficulty-buttons">
+      <button class="difficulty-button selected" data-level="1">Easy</button>
+      <button class="difficulty-button" data-level="2">Medium</button>
+      <button class="difficulty-button" data-level="3">Hard</button>
+      <button class="difficulty-button" data-level="4">Daredevil</button>
+    </div>
     <button id="build" class="control-button">Build</button>
     <button id="cashout" class="control-button">Cashout</button>
   </div>
@@ -523,10 +564,15 @@
       }
 
       // click event
+      $(".difficulty-button").on("click", function () {
+        $(".difficulty-button").removeClass("selected");
+        $(this).addClass("selected");
+      });
+
       $("#start").on("click", function () {
         if (gameStart) return;
         amount = parseFloat($("#amount-input").val()) || 0;
-        difficulty = parseFloat($("#difficulty-input").val()) || 1;
+        difficulty = parseFloat($("#difficulty-buttons .selected").data("level")) || 1;
         score = amount;
         game.setVariable('GAME_SCORE', score);
         gameStart = true;
