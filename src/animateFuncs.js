@@ -16,30 +16,13 @@ export const endAnimate = (engine) => {
   const gameScore = engine.getVariable(constant.gameScore, 0)
   const threeFiguresOffset = Number(successCount) > 99 ? engine.width * 0.1 : 0
 
+  const multiplier = (1 + successCount * 0.5).toFixed(1)
   drawYellowString(engine, {
-    string: 'floor',
-    size: engine.width * 0.06,
-    x: (engine.width * 0.24) + threeFiguresOffset,
-    y: engine.width * 0.12,
-    textAlign: 'left',
-    fontName: 'Arial',
-    fontWeight: 'bold'
-  })
-  drawYellowString(engine, {
-    string: successCount,
+    string: `${multiplier}x`,
     size: engine.width * 0.17,
     x: (engine.width * 0.22) + threeFiguresOffset,
     y: engine.width * 0.2,
     textAlign: 'right'
-  })
-  // draw $ icon instead of the original Score label
-  drawYellowString(engine, {
-    string: '$',
-    size: engine.width * 0.18,
-    x: engine.width * 0.61,
-    y: engine.width * 0.12,
-    textAlign: 'left',
-    fontWeight: 'bold'
   })
   drawYellowString(engine, {
     string: gameScore,
@@ -47,14 +30,6 @@ export const endAnimate = (engine) => {
     x: engine.width * 0.9,
     y: engine.width * 0.11,
     textAlign: 'right'
-  })
-  const multiplier = (1 + successCount * 0.5).toFixed(1)
-  drawYellowString(engine, {
-    string: `${multiplier}x`,
-    size: engine.width * 0.08,
-    x: engine.width * 0.66,
-    y: engine.width * 0.2,
-    textAlign: 'left'
   })
 }
 
