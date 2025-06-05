@@ -411,10 +411,6 @@
       var bottomSpace = 100;
       var gameWidth = window.innerWidth;
       var gameHeight = window.innerHeight - bottomSpace;
-      var ratio = 1.5;
-      if (gameHeight / gameWidth < ratio) {
-        gameWidth = Math.ceil(gameHeight / ratio);
-      }
       $(".content").css({ height: gameHeight + "px", width: gameWidth + "px" });
       $(".js-modal-content").css({ width: gameWidth + "px" });
 
