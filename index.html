@@ -506,7 +506,6 @@
                   <div id="score" class="over-score font-wenxue"></div>
                   <div id="over-zero" class="hide">
                     <div class="tip">
-                      <p>Retry?</p>
                       <button id="retry" class="retry-button">Retry</button>
                     </div>
                   </div>
@@ -627,7 +626,6 @@
           if (game) game.setVariable('GAME_SCORE', score);
         },
         setGameFailed: function (f) {
-          $("#score").text("Game over");
           setTimeout(overShowOver, 1500);
         },
         buildRequest: function () {
