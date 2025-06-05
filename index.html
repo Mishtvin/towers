@@ -554,7 +554,6 @@
         gameStart,
         game,
         score,
-        successCount,
         amount,
         difficulty;
 
@@ -617,14 +616,10 @@
         canvasId: "canvas",
         soundOn: true,
         setGameScore: function (s) {
-          score = amount * (1 + successCount * 0.5);
+          score = s;
           if (game) game.setVariable('GAME_SCORE', score);
         },
-        setGameSuccess: function (s) {
-          successCount = s;
-          score = amount * (1 + successCount * 0.5);
-          if (game) game.setVariable('GAME_SCORE', score);
-        },
+        setGameSuccess: function () {},
         setGameFailed: function (f) {
           setTimeout(overShowOver, 1500);
         },
