@@ -76,7 +76,7 @@
         left: 0;
         top: 0;
         right: 0;
-        bottom: 100px;
+        bottom: 0;
         margin: auto;
       }
       a {
@@ -363,10 +363,14 @@
         left: 0;
         bottom: 0;
         width: 100%;
-        height: 100px;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 0.2rem;
+        box-sizing: border-box;
         display: flex;
-        justify-content: center;
+        flex-wrap: wrap;
+        justify-content: space-around;
         align-items: center;
+        gap: 0.1rem;
       }
       #retry {
         padding: 0.1rem 0.3rem;
@@ -462,7 +466,7 @@
         difficulty;
 
       // init window height and width
-      var bottomSpace = 100;
+      var bottomSpace = document.querySelector('.bottom-controls').offsetHeight;
       var gameWidth = window.innerWidth;
       var gameHeight = window.innerHeight - bottomSpace;
       var ratio = 1.5;
@@ -471,6 +475,7 @@
       }
       $(".content").css({ height: gameHeight + "px", width: gameWidth + "px" });
       $(".js-modal-content").css({ width: gameWidth + "px" });
+      $("#canvas").css({ bottom: bottomSpace + "px" });
 
       // loading animation
       function hideLoading() {
